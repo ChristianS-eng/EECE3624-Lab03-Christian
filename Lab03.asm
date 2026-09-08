@@ -1,8 +1,8 @@
 /**************************************************************************
  *     File: Lab03.asm
- * Lab Name: Lab 03
- *   Author: John Hutton
- *  Created: 09/16/2022
+ * Lab Name: Lab03 - Decisions, Decisions, Decisons!
+ *   Author: Christian Sorensen
+ *  Created: 09/08/2026
  *
  * This program simulates reading sensor data and doing operations on them.
  * It uses memory locations for sensors and result writes.
