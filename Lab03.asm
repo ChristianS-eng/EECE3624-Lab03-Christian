@@ -1,8 +1,8 @@
 /**************************************************************************
- *     File: Lab03.asm
+ * File: Lab03.asm
  * Lab Name: Lab03 - Decisions, Decisions, Decisons!
- *   Author: Christian Sorensen
- *  Created: 09/08/2026
+ * Author: Christian Sorensen
+ * Created: 09/14/2026
  *
  * This program simulates reading sensor data and doing operations on them.
  * It uses memory locations for sensors and result writes.
@@ -28,12 +28,14 @@
  * NOTE:  For testing, you can modify these after loading them
  * to make sure all of your branches work properly
  ***********************************************************************/
+ .equ THRESHOLD = 0x90 ; Create a constant
+ .def Sensor1   = R20  ; Define a nickname for R20
+ .def Sensor2   = R21  ; Define a nickname for R21
+ .org 0x0000 ; next instruction will be written to address 0x0000
+             ; (the location of the reset vector)
+RJMP main    ; set reset vector to point to the main code entry point
 
-.org 0x0000 ; next instruction will be written to address 0x0000
-            ; (the location of the reset vector)
-RJMP main	; set reset vector to point to the main code entry point
-
-main:       ; jump here on reset
+main:        ; jump here on reset
 
 	; initialize the stack (RAMEND = 0x10FF by default for the ATmega128A)
 	LDI R16, HIGH(RAMEND)
@@ -43,3 +45,51 @@ main:       ; jump here on reset
 
     ;----------------------------------
     ; student-written code begins here    
+
+	LDI YL, 0x00	 ; load lower Y bits
+	LDI YH, 0x01     ; load upper Y bits
+					 ; Y points to 0x0100
+
+	LD Sensor1, Y+   ; Sensor1 = 0x61, Y incremented
+	LD Sensor2, Y    ; Sensor2 = 0x97
+
+	ADIW YH:YL, 0x0f ; bump Y to 0x0110 
+	
+	CPI Sensor1, THRESHOLD	; 0x61 >= 0x90 ?
+	BRSH YES
+
+	LDI R19, 0x50	
+	RJMP NEXT00
+
+	YES:
+	LDI R19, 0x46
+
+	NEXT00:
+	ST Y+, R19	; load appropriate value, increment Y
+
+	ST Y+, Sensor1	; store Sensor1, increment Y
+
+	CPI Sensor2, THRESHOLD	; 0x97 < 0x90 ?
+	BRLT LESS
+
+	LDI R19, 's'
+	RJMP NEXT01
+
+	LESS:
+	LDI R19, 'i'
+
+	NEXT01:
+	ST Y+, R19	; load appropriate value, increment Y
+	
+	CP Sensor1, Sensor2
+	BRNE NOT_EQUAL
+
+	LDI R19, 108
+	RJMP END
+
+	NOT_EQUAL:
+	LDI R19, 115
+
+	END:
+	ST Y, R19	; load appropriate value
+	NOP
